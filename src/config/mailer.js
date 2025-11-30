@@ -4,25 +4,26 @@ require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587, // Puerto estándar para STARTTLS
-    secure: false, // DEBE ser false para el puerto 587
+    port: 587,
+    secure: false, // STARTTLS
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
+    // --- ESTA ES LA CLAVE PARA ARREGLAR EL TIMEOUT ---
+    family: 4, // Fuerza a usar IPv4 y evita problemas de red con Node v17+
+    // -------------------------------------------------
     tls: {
-        // No fallar si el certificado tiene problemas menores
-        rejectUnauthorized: false 
+        rejectUnauthorized: false
     },
-    // Aumentamos los tiempos de espera para evitar cortes prematuros
-    connectionTimeout: 10000, // 10 segundos
-    greetingTimeout: 10000,
-    socketTimeout: 10000
+    // Tiempos de espera estándar
+    connectionTimeout: 10000, 
+    greetingTimeout: 10000
 });
 
 // Verificar conexión al iniciar
 transporter.verify().then(() => {
-    console.log('✅ Listo para enviar correos (Puerto 587)');
+    console.log('✅ Listo para enviar correos (IPv4 forzado)');
 }).catch((err) => {
     console.error('❌ Error configurando el correo:', err);
 });
