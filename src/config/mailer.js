@@ -2,23 +2,27 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// CAMBIO: Usamos configuración explícita en lugar de service: 'gmail'
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 465, // Puerto seguro SSL (Más estable en Render)
-    secure: true, // true para el puerto 465, false para otros puertos
+    port: 587, // Puerto estándar para STARTTLS
+    secure: false, // DEBE ser false para el puerto 587
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
-    // Opcional: Agregamos logs para ver más detalles si falla
-    logger: true,
-    debug: true
+    tls: {
+        // No fallar si el certificado tiene problemas menores
+        rejectUnauthorized: false 
+    },
+    // Aumentamos los tiempos de espera para evitar cortes prematuros
+    connectionTimeout: 10000, // 10 segundos
+    greetingTimeout: 10000,
+    socketTimeout: 10000
 });
 
 // Verificar conexión al iniciar
 transporter.verify().then(() => {
-    console.log('✅ Listo para enviar correos');
+    console.log('✅ Listo para enviar correos (Puerto 587)');
 }).catch((err) => {
     console.error('❌ Error configurando el correo:', err);
 });
