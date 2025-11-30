@@ -2,20 +2,25 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Creamos el "transporte" (el cartero)
+// CAMBIO: Usamos configuración explícita en lugar de service: 'gmail'
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // O 'hotmail', o tu servidor SMTP corporativo
+    host: "smtp.gmail.com",
+    port: 465, // Puerto seguro SSL (Más estable en Render)
+    secure: true, // true para el puerto 465, false para otros puertos
     auth: {
-        user: process.env.EMAIL_USER, // Tu correo
-        pass: process.env.EMAIL_PASS  // Tu contraseña de aplicación (NO la normal)
-    }
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    // Opcional: Agregamos logs para ver más detalles si falla
+    logger: true,
+    debug: true
 });
 
 // Verificar conexión al iniciar
 transporter.verify().then(() => {
-    console.log('Listo para enviar correos');
+    console.log('✅ Listo para enviar correos');
 }).catch((err) => {
-    console.error('Error configurando el correo:', err);
+    console.error('❌ Error configurando el correo:', err);
 });
 
 module.exports = transporter;
