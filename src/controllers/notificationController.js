@@ -87,4 +87,37 @@ exports.sendPromotionEmail = async (req, res) => {
         console.error(error);
         res.status(500).json({ msg: 'Error enviando promoción', error: error.message });
     }
+
+
+
+};
+
+// 4. NUEVO: Reenviar mensaje de contacto al Admin
+exports.sendContactMessage = async (req, res) => {
+    try {
+        const { nombre, email, telefono, mensaje } = req.body;
+
+        const mailOptions = {
+            from: `"Formulario Web" <${process.env.EMAIL_USER}>`,
+            to: process.env.EMAIL_USER, // Se envía a ti mismo (al admin)
+            replyTo: email, // Para que si le das "Responder" le llegue al cliente
+            subject: `Nuevo Mensaje de Contacto: ${nombre}`,
+            html: `
+                <h3>Nuevo mensaje recibido desde la web</h3>
+                <p><strong>Nombre:</strong> ${nombre}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Teléfono:</strong> ${telefono}</p>
+                <hr>
+                <p><strong>Mensaje:</strong></p>
+                <p>${mensaje}</p>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.status(200).json({ msg: 'Mensaje enviado al administrador' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error enviando mensaje de contacto', error: error.message });
+    }
 };
